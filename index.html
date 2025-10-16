@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
-    <title>Espaçonave Futurista em Canvas</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>International Space Library</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="spaceshipCanvas" width="500" height="500"></canvas>
+  <div class="container" id="mainContainer">
+      <button id="startButton" class="pulsing-button">INICIAR</button>
+      <div id="typed-text-container">
+        <span id="typed-text"></span>
+      </div>
+      <button id="missionButton" class="pulsing-button hidden">Iniciar Missão</button>
+  </div>
+  <canvas id="gameCanvas" class="hidden" width="500" height="500"></canvas>
 </body>
 </html>
+
