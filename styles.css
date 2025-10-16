@@ -1,0 +1,88 @@
+:root{
+  --cor-fundo: #0a0a0a;
+  --cor-brilho: #00ffff; /* Azul Piscina (Ciano) */
+  --cor-cinza: #333333;
+  --fonte: 'Orbitron', sans-serif;
+}
+
+body{
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--cor-fundo);
+  color: var(--cor-brilho);
+  font-family: var(--fonte);
+  text-align: center;
+  overflow: hidden;
+}
+
+.container{
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pulsing-button {
+  font-family: var(--fonte);
+  font-size: 1.2rem;
+  color: var(--cor-brilho);
+  background-color: transparent;
+  border: 2px solid var(--cor-brilho);
+  border-radius: 8px;
+  padding: 15px 30px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 0 5px var(--cor-brilho), 0 0 10px var(--cor-brilho);
+  animation: pulse 2s infinite;
+  transition: all 0.3s ease;
+}
+
+.pulsing-button:hover {
+  background-color: var(--cor-brilho);
+  color: var(--cor-fundo);
+}
+
+/* Animação do brilho pulsante */
+@keyframes pulse {
+  0% {box-shadow: 0 0 5px var(--cor-brilho), 0 0 10px var(--cor-brilho); }
+  50% {box-shadow: 0 0 20px var(--cor-brilho), 0 0 30px var(--cor-brilho);}
+  100% {box-shadow: 0 0 5px var(--cor-brilho), 0 0 10px var(--cor-brilho);}
+}
+        
+#typed-text-container {
+  display: none; /* Começa escondido */
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+}
+
+/* Efeito do cursor piscando */
+.typing-cursor::after {
+  content: '_';
+  opacity: 1;
+  animation: blink 1s step-end infinite;
+  margin-left: 5px;
+}
+
+@keyframes blink {
+  from, to {opacity: 1;}
+  50% {opacity: 0;}
+}
+
+.hidden {
+  display: none !important;
+}
+
+#gameCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #555
+}
