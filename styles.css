@@ -28,7 +28,7 @@ body{
 
 .pulsing-button {
   font-family: var(--fonte);
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   color: var(--cor-brilho);
   background-color: transparent;
   border: 2px solid var(--cor-brilho);
@@ -80,9 +80,7 @@ body{
 
 #gameCanvas {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  height: clamp( 50vh, 80vh, 100vh);
+  aspect-ratio: 9/16;
   background-color: #555
 }
