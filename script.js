@@ -341,6 +341,7 @@ function draw() {
       delay++;
     }
     ISLExplorer(ctx, player.x, player.y, player.width, player.height);
+    ratio = window.innerHeight / canvas.height;
 }
 
 function gameLoop() {
