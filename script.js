@@ -6,18 +6,16 @@ const textElement = document.getElementById('typed-text');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-//gameCanvas.width = window.innerWidth;
-//gameCanvas.height = window.innerHeight;
     
-const typingSpeed = 15; // Milissegundos por caractere
+const typingSpeed = 1; // Milissegundos por caractere o certo é 15
 const textToType = 'Antes do asteroide PALAS destruir a Biblioteca Espacial Internacional, seu acervo foi ejetado em cápsulas de segurança.\nMilhares dessas cápsulas estão espalhados pelo espaço. \n\n Sua missão: recuperar essas cápsulas e evitar que o conhecimento se perca para sempre.';
 
 // Estado do personagem
 const player = {
   x: canvas.width / 2,
   y: canvas.height * 0.7,
-  width: 30 * 1,
-  height: 50 * 1,
+  width: 30,
+  height: 50,
   color: 'red',
   speed: 10
 };
@@ -30,10 +28,18 @@ const keys = {
     ArrowDown: false
 };
 
+const pointcontrols = {
+  pointerId: null, // Controla para evitar eventos estranhos
+  origin: null,     // Base do calculo para medir a distância percorrida
+  active: false, // Indica que o dedo ainda está na tela
+  axis_x: 0 // distância qeu foi percorrida desde a ultima leitura
+};
+
 let gameON = false;
 let prop = 1;
 let delay = 0;
 const fator = 2.5;
+let ratio = window.innerHeight / canvas.height;
 
 // Adiciona os "ouvintes" de eventos
 document.addEventListener('keydown', (event) => {
@@ -49,25 +55,52 @@ document.addEventListener('keyup', (event) => {
     }
 });
 
-function update() {
-  // Movimento para a direita
-  if (keys.ArrowRight && player.x < canvas.width - player.width * 0.8) {
-    player.x += player.speed;
+canvas.addEventListener('pointerdown', event => { // Pointer events (works for touch and mouse)
+  event.preventDefault(); // Prevent browser gestures
+
+  const rect = canvas.getBoundingClientRect(); // Retorna Retorna a Posição e o Tamanho do canvas em relação ao viewport.
+  const px = event.clientX - rect.left; // Calcula a posição x do pointer no canvas
+
+  pointcontrols.pointerId = event.pointerId;
+  pointcontrols.origin = px;  // Armazena a coordenada x do contato inicial.
+  pointcontrols.active = true;
+  pointcontrols.axis_x = 0;
+  canvas.setPointerCapture(event.pointerId); // Ainda que o pointer não esteja sobre o canvas ele continua atuando sobre o elemento
+});
+
+canvas.addEventListener('pointermove', event => {
+  event.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const px = event.clientX - rect.left;
+
+  if (pointcontrols.active && pointcontrols.origin != px) {
+    pointcontrols.axis_x = px - pointcontrols.origin; // Calcula a distânia x entre o toque inicial e o ponto atual
+    pointcontrols.origin = px;
+  } else{
+    pointcontrols.axis_x = 0;
   }
-  
-  // Movimento para a esquerda
-  if (keys.ArrowLeft && player.x > player.width * 0.8) {
-    player.x -= player.speed;
+});
+
+canvas.addEventListener('pointerup', event => {
+  event.preventDefault();
+  if (pointcontrols.pointerId === event.pointerId) { // release joystick
+    pointcontrols.pointerId = null;
+    pointcontrols.active = false;
+    pointcontrols.origin = null;
+    pointcontrols.axis_x = 0;
+    canvas.releasePointerCapture(event.pointerId);
   }
-  
-  if (keys.ArrowUp && player.y > player.height * 0.5){
-    player.y -= player.speed;
+});
+
+canvas.addEventListener('pointercancel', event => {
+  if (pointcontrols.pointerId === event.pointerId) {
+    pointcontrols.pointerId = null;
+    pointcontrols.active = false;
+    pointcontrols.axis_x = 0;
   }
-  
-  if(keys.ArrowDown && player.y < canvas.height - player.height * 0.5){
-    player.y += player.speed;
-  }
-}
+});
+
+canvas.addEventListener('contextmenu', event => event.preventDefault()); // Prevent context menu on long press
 
 // Função que simula a digitação, com um callback ao finalizar
 function typeWriter(text, element, speed, callback) {
@@ -272,6 +305,24 @@ function startScene() {
 player.width *= fator;
 player.height *= fator;
 
+function update() {
+  pointcontrols.axis_x /= ratio;
+    if(player.x + pointcontrols.axis_x > player.width / 2 && player.x + pointcontrols.axis_x < canvas.width - player.width / 2){
+       player.x += pointcontrols.axis_x;
+    }
+    pointcontrols.axis_x = 0;
+  
+  // Movimento para a direita
+  if (keys.ArrowRight && player.x < canvas.width - player.width * 0.8) {
+    player.x += player.speed;
+  }
+  
+  // Movimento para a esquerda
+  if (keys.ArrowLeft && player.x > player.width * 0.8) {
+    player.x -= player.speed;
+  }
+}
+
 function draw() {
     // Limpa o canvas a cada quadro
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -318,7 +369,7 @@ missionButton.addEventListener('click', () => {
 
 // Se for a primeira vez, adiciona o evento ao botão
 startButton.addEventListener('click', () => {
-// Marca como visitado e inicia a cena
-localStorage.setItem('hasVisited', 'true');
-startScene();
+  // Marca como visitado e inicia a cena
+  localStorage.setItem('hasVisited', 'true');
+  startScene();
 });
