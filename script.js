@@ -6,6 +6,35 @@ const textElement = document.getElementById('typed-text');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+
+const musicaFundo = document.getElementById('musicaFundo');
+let musicaIniciada = false;
+
+function iniciarMusica() {
+    if (musicaIniciada) return; // Se já estiver tocando, ignore
+
+    // Configura o volume (opcional, entre 0.0 e 1.0)
+    musicaFundo.volume = 0.5;
+
+    // Tenta iniciar a reprodução. O 'play()' retorna uma Promise.
+    const promise = musicaFundo.play();
+
+    // Lida com a Promise para verificar se o áudio foi iniciado com sucesso
+    if (promise !== undefined) {
+        promise.then(() => {
+            // O áudio começou a tocar.
+            musicaIniciada = true;
+            console.log("Música de fundo iniciada.");
+            // Oculta ou desabilita o botão depois de clicar
+            //botaoIniciar.style.display = 'none';
+
+        }).catch(error => {
+            // A reprodução automática falhou (geralmente por falta de interação)
+            console.warn("A reprodução automática foi impedida: ", error);
+            // Neste caso, a música será iniciada no primeiro clique do usuário.
+        });
+    }
+}
     
 const typingSpeed = 1; // Milissegundos por caractere o certo é 15
 const textToType = 'Antes do asteroide PALAS destruir a Biblioteca Espacial Internacional, seu acervo foi ejetado em cápsulas de segurança.\nMilhares dessas cápsulas estão espalhados pelo espaço. \n\n Sua missão: recuperar essas cápsulas e evitar que o conhecimento se perca para sempre.';
@@ -373,4 +402,5 @@ startButton.addEventListener('click', () => {
   // Marca como visitado e inicia a cena
   localStorage.setItem('hasVisited', 'true');
   startScene();
+    iniciarMusica();
 });
