@@ -629,6 +629,7 @@ function startScene() { // Função para iniciar a cena de texto
 startButton.addEventListener('click', () => {
   // Marca como visitado e inicia a cena
   localStorage.setItem('hasVisited', 'true');
+  iniciarMusica();
   startScene();
 });
 
