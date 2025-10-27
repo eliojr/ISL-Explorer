@@ -191,7 +191,85 @@ function roundRect(ctx, centerX, centerY, width, height, radius) {
   ctx.closePath(); // Fecha o caminho
 }
 
+function drawCapsula(ctx, x, y, width, height){
+  // --- Configurações Gerais ---
+  const centerX = x;
+  const centerY = y; // Centro vertical do canvas
+  const bodyWidth = width;
+  const bodyHeight = height;
+  const bodyWidth_half = bodyWidth / 2;
+  const bodyHeight_half = bodyHeight / 2;
+  const p_x = bodyWidth * 0.25;
+  const p_y = bodyHeight * 0.25;
+  const p_y2 = bodyHeight * 0.1;
 
+  // Desenha o Corpo Principal (Polígono)
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#263238';
+  ctx.fillStyle = '#CFD8DC';
+  ctx.beginPath();
+  ctx.moveTo(centerX - bodyWidth_half, centerY + bodyHeight * 0.32);    //addp(centerX - bodyWidth_half, centerY + bodyHeight / 2 - 50, 'A');
+  ctx.lineTo(centerX - bodyWidth_half, centerY - bodyHeight * 0.4);     //addp(centerX - bodyWidth_half, centerY - bodyHeight / 2 + height * 0.1, 'B');
+  ctx.lineTo(centerX - bodyWidth * 0.20, centerY - bodyHeight * 0.57);  //addp(centerX - 30, centerY - bodyHeight / 2 - 20, 'C');
+  ctx.lineTo(centerX + bodyWidth * 0.20, centerY - bodyHeight * 0.57);  //addp(centerX + 30, centerY - bodyHeight / 2 - 20, 'D');
+  ctx.lineTo(centerX + bodyWidth_half, centerY - bodyHeight * 0.4);     //addp(centerX + bodyWidth_half, centerY - bodyHeight / 2 + height * 0.1, 'E');
+  ctx.lineTo(centerX + bodyWidth_half, centerY + bodyHeight * 0.32);    //addp(centerX + bodyWidth_half, centerY + bodyHeight / 2 - 50, 'F');
+  ctx.closePath(); 
+  ctx.fill();
+  ctx.stroke();
+
+  // Linhas verticais laterais
+  ctx.strokeStyle = '#90A4AE';
+  ctx.beginPath();
+  ctx.moveTo(centerX - bodyWidth * 0.44, centerY - bodyHeight * 0.37); //addp(centerX - bodyWidth / 2 + 10, centerY - bodyHeight / 2 + cornerRadius + 10, '');
+  ctx.lineTo(centerX - bodyWidth * 0.44, centerY + bodyHeight * 0.29); //addp(centerX - bodyWidth / 2 + 10, centerY + bodyHeight / 2 - 60, '');
+  ctx.moveTo(centerX + bodyWidth * 0.44, centerY - bodyHeight * 0.37); //addp(centerX + bodyWidth / 2 - 10, centerY - bodyHeight / 2 + cornerRadius + 10, '');
+  ctx.lineTo(centerX + bodyWidth * 0.44, centerY + bodyHeight * 0.29); //addp(centerX + bodyWidth / 2 - 10, centerY + bodyHeight / 2 - 60, ''); 
+  ctx.stroke();
+
+  // Desenha a Base Arredondada 
+  ctx.fillStyle = '#90A4AE'; // Sombra da base
+  ctx.strokeStyle = '#263238';
+  ctx.beginPath();
+  ctx.moveTo(centerX - bodyWidth_half, centerY + bodyHeight * 0.32);    //addp(centerX - bodyWidth_half, centerY + bodyHeight * 0.32, 'A');    
+  ctx.lineTo(centerX + bodyWidth_half, centerY + bodyHeight * 0.32);    //addp(centerX + bodyWidth_half, centerY + bodyHeight * 0.32,'B');
+  ctx.lineTo(centerX + bodyWidth_half, centerY + bodyHeight * 0.4);     //addp(centerX + bodyWidth_half, centerY + bodyHeight * 0.4,'C');  
+  ctx.lineTo(centerX + bodyWidth * 0.20, centerY + bodyHeight * 0.57);  //addp(centerX + bodyWidth * 0.20, centerY + bodyHeight * 0.57,'D'); 
+  ctx.lineTo(centerX - bodyWidth * 0.20, centerY + bodyHeight * 0.57);  //addp(centerX - bodyWidth * 0.20, centerY + bodyHeight * 0.57,'E');
+  ctx.lineTo(centerX - bodyWidth_half, centerY + bodyHeight * 0.4);     //addp(centerX - bodyWidth_half, centerY + bodyHeight * 0.4,'F'); 
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+                
+  ctx.fillStyle = '#78909C';
+  ctx.strokeRect(centerX - bodyWidth * 0.28, centerY - bodyHeight * 0.53, bodyWidth * 0.08, bodyHeight * 0.07); // addp(centerX - 50, centerY - bodyHeight / 2 - 10, 'A');
+                                                                                                                // addp(centerX - 50 + 15, centerY - bodyHeight / 2 - 10 + 23, 'B');
+  ctx.strokeRect(centerX + bodyWidth * 0.2, centerY - bodyHeight * 0.53, bodyWidth * 0.08, bodyHeight * 0.073); // addp(centerX + 35, centerY - bodyHeight * 0.53,'A');
+                                                                                                                // addp(centerX +35 + 15, centerY - bodyHeight / 2 - 10 + 23, 'B');
+  ctx.fillStyle = '#FFA726';
+  ctx.fillRect(centerX - bodyWidth * 0.3, centerY - bodyHeight * 0.3, bodyWidth * 0.6, bodyHeight * 0.6);
+  ctx.strokeRect(centerX - bodyWidth * 0.3, centerY - bodyHeight * 0.3, bodyWidth * 0.6, bodyHeight * 0.6);
+
+  ctx.strokeStyle = '#263238';
+  ctx.fillStyle = '#90A4AE';
+  ctx.beginPath();
+  ctx.moveTo(centerX - p_x, centerY -  p_y); //addp(centerX - bodyWidth_half * .5, centerY -  bodyHeight_half * .5, 'o');
+  ctx.lineTo(centerX + p_x, centerY -  p_y); //addp(centerX + bodyWidth_half * .5, centerY -  bodyHeight_half * .5, 'o');
+  ctx.lineTo(centerX + p_x, centerY -  p_y2); //addp(centerX + bodyWidth_half * .5, centerY -  bodyHeight_half * .2, 'o');
+  ctx.lineTo(centerX - p_x, centerY -  p_y2); //addp(centerX - bodyWidth_half * .5, centerY -  bodyHeight_half * .2, 'o');
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(centerX - p_x, centerY +  p_y); //addp(centerX - bodyWidth_half * .5, centerY +  bodyHeight_half * .5, 'o');
+  ctx.lineTo(centerX + p_x, centerY +  p_y); //addp(centerX + bodyWidth_half * .5, centerY +  bodyHeight_half * .5, 'o');
+  ctx.lineTo(centerX + p_x, centerY +  p_y2); //addp(centerX + bodyWidth_half * .5, centerY +  bodyHeight_half * .2, 'o');
+  ctx.lineTo(centerX - p_x, centerY +  p_y2); //addp(centerX - bodyWidth_half * .5, centerY +  bodyHeight_half * .2, 'o');
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
 
 
 
