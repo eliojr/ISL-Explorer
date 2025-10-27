@@ -6,11 +6,14 @@ const textElement = document.getElementById('typed-text');
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const musicaFundo = document.getElementById('musicaFundo');
+
 const typingSpeed = 1; // Milissegundos por caractere o certo é 15
 const textToType = 'Antes do asteroide PALAS destruir a Biblioteca Espacial Internacional, seu acervo foi ejetado em cápsulas de segurança.\nMilhares dessas cápsulas estão espalhados pelo espaço. \n\n Sua missão: recuperar essas cápsulas e evitar que o conhecimento se perca para sempre.';
 const fator = 2.5; // Define a escala da espaçonave.
 const HIGH_SCORE_KEY = 'highscore';
 const DEBUG_MODE = false;
+
 
 // Estado do teclado
 const keys = {
@@ -41,6 +44,7 @@ let prop = 1; // Define o tamanho da chama do propulsor
 let delay = 0; // Controla o tempo de atulização da chama
 let dist = 0;
 let frag = 0;
+let musicaIniciada = false;
 let t100ms = 0;
 let segundo = 0;
 
@@ -181,6 +185,31 @@ document.addEventListener('keyup', (event) => {
         keys[event.key] = false;
     }
 });
+
+function iniciarMusica() {
+    if(musicaIniciada){
+      return; // Se já estiver tocando, ignore
+    }
+
+    musicaFundo.volume = 0.5; // Configura o volume (opcional, entre 0.0 e 1.0)
+    const promise = musicaFundo.play(); // Tenta iniciar a reprodução. O 'play()' retorna uma Promise.
+
+    // Lida com a Promise para verificar se o áudio foi iniciado com sucesso
+    if (promise !== undefined) {
+        promise.then(() => {
+            // O áudio começou a tocar.
+            musicaIniciada = true;
+            console.log("Música de fundo iniciada.");
+            // Oculta ou desabilita o botão depois de clicar
+            //botaoIniciar.style.display = 'none';
+
+        }).catch(error => {
+            // A reprodução automática falhou (geralmente por falta de interação)
+            console.warn("A reprodução automática foi impedida: ", error);
+            // Neste caso, a música será iniciada no primeiro clique do usuário.
+        });
+    }
+}
 
 // Função que simula a digitação, com um callback ao finalizar
 function typeWriter(text, element, speed, callback) {
@@ -632,47 +661,3 @@ startButton.addEventListener('click', () => {
   iniciarMusica();
   startScene();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
