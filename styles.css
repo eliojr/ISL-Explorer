@@ -78,9 +78,26 @@ body{
   display: none !important;
 }
 
-#gameCanvas {
-  position: absolute;
-  height: 100vh;
-  aspect-ratio: 9/16;
-  background-color: #222
+/* 1. Estilos para RETRATO (em pé) */
+@media (orientation: portrait) {
+  #gameCanvas {
+    position: absolute;
+    height: 100vh;
+    width: 100vh;
+    /*aspect-ratio: 9/16;*/
+    background-color: #222;
+    touch-action: none;
+  }
 }
+
+/* 2. Estilos para PAISAGEM (deitado) */
+@media (orientation: landscape) {
+  #gameCanvas {
+    position: absolute;
+    height: 100vh;
+    aspect-ratio: 9/16;
+    background-color: #222;
+    touch-action: none;
+  }
+}
+
