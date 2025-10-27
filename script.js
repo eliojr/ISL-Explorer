@@ -10,8 +10,7 @@ const typingSpeed = 1; // Milissegundos por caractere o certo é 15
 const textToType = 'Antes do asteroide PALAS destruir a Biblioteca Espacial Internacional, seu acervo foi ejetado em cápsulas de segurança.\nMilhares dessas cápsulas estão espalhados pelo espaço. \n\n Sua missão: recuperar essas cápsulas e evitar que o conhecimento se perca para sempre.';
 const fator = 2.5; // Define a escala da espaçonave.
 const HIGH_SCORE_KEY = 'highscore';
-const DEBUG_MODE = true;
-const musicaFundo = document.getElementById('musicaFundo');
+const DEBUG_MODE = false;
 
 // Estado do teclado
 const keys = {
@@ -31,6 +30,7 @@ const touchcontrols = {
 let ratio = window.innerHeight / canvas.height; // Identifica a razão entre a tela e o canvas
 let player;
 let asteroids = []; // Vetor que armazena os asteroides que estão caindo
+let capsulas = []; // Vetor que armazena as capsulas que estão caindo
 let score = 0; // Armazena a pontuação do jogador
 let highScore = localStorage.getItem(HIGH_SCORE_KEY) ? parseInt(localStorage.getItem(HIGH_SCORE_KEY)) : 0; // Se consiguir ler abre com o valor, se não 0
 let gameON = false;
@@ -41,7 +41,8 @@ let prop = 1; // Define o tamanho da chama do propulsor
 let delay = 0; // Controla o tempo de atulização da chama
 let dist = 0;
 let frag = 0;
-let musicaIniciada = false;
+let t100ms = 0;
+let segundo = 0;
 
 // --- Variáveis de Tempo ---
 let lastTime = 0;           // Armazena o timestamp do frame anterior
@@ -92,10 +93,10 @@ class Player{ // Classe do jogador
   draw(){
     if(delay == 30){
       delay = 0;
-      prop = gameSpeed * 0.45;
+      prop = gameSpeed * 0.2;
     }else{
       if(delay == 15){
-        prop = gameSpeed * 0.50;
+        prop = gameSpeed * 0.3;
       }
       delay++;
     }
@@ -144,6 +145,29 @@ class Asteroid{ // Classe dos asteroides
   }
 }
 
+class Capsula{
+  constructor(x, y, initialSpeed) {
+    this.x = x;
+    this.y = y;
+    this.velocity = initialSpeed;
+  }
+  
+  update(){
+    this.y += this.velocity * gameSpeed; // A velocidade é ajustada pelo multiplicador de velocidade do jogo
+  }
+  
+  draw(){
+    drawCapsula(ctx, this.x, this.y, 40, 70); // Tamnho da Capsula
+    
+    if(DEBUG_MODE){
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 40, 0, Math.PI * 2, false);
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+      ctx.fill();
+    }
+  }
+}
+
 // Adiciona os "ouvintes" de eventos
 document.addEventListener('keydown', (event) => {
     if (event.key in keys) {
@@ -157,31 +181,6 @@ document.addEventListener('keyup', (event) => {
         keys[event.key] = false;
     }
 });
-
-function iniciarMusica() {
-    if(musicaIniciada){
-      return; // Se já estiver tocando, ignore
-    }
-
-    musicaFundo.volume = 0.5; // Configura o volume (opcional, entre 0.0 e 1.0)
-    const promise = musicaFundo.play(); // Tenta iniciar a reprodução. O 'play()' retorna uma Promise.
-
-    // Lida com a Promise para verificar se o áudio foi iniciado com sucesso
-    if (promise !== undefined) {
-        promise.then(() => {
-            // O áudio começou a tocar.
-            musicaIniciada = true;
-            console.log("Música de fundo iniciada.");
-            // Oculta ou desabilita o botão depois de clicar
-            //botaoIniciar.style.display = 'none';
-
-        }).catch(error => {
-            // A reprodução automática falhou (geralmente por falta de interação)
-            console.warn("A reprodução automática foi impedida: ", error);
-            // Neste caso, a música será iniciada no primeiro clique do usuário.
-        });
-    }
-}
 
 // Função que simula a digitação, com um callback ao finalizar
 function typeWriter(text, element, speed, callback) {
@@ -297,19 +296,22 @@ function updateUI() {
   ctx.fillText(`TIME: ${timeString}`, 20, 70);
   ctx.fillText(`X: ${player.x.toFixed(0)}`, 20, 110);
   ctx.fillText(`Y: ${dist.toFixed(0)}`, 20, 150);
+  ctx.fillText(`SPEED: ${(gameSpeed * 100).toFixed(2)} m/s`, 20, 190);
+  
   //ctx.fillText(`id: ${touchcontrols.id}`, 20, 150);
   
-  
   // Lado direito
-  ctx.fillText(`SCORE: ${score}`, canvas.width - 260, 70);
+  ctx.fillText(`SCORE: ${score.toFixed(0)}`, canvas.width - 260, 70);
   ctx.fillText(`HIGHT: ${highScore}`, canvas.width - 260, 110);
+  ctx.fillText(`Count: ${spawnCounter}`, canvas.width - 260, 150);
+  
 }
 
 function getRandomArbitrary(min, max) { // Permite gerar números aleatórios dentro de um intervalo
   return Math.random() * (max - min) + min;
 }
 
-function spawnAsteroid() {
+function spawnAsteroid(){
   const x = getRandomArbitrary(25, canvas.width - 25); // Posição X aleatória
   const y = -40; // -40 Começa acima do canvas
   const speed = getRandomArbitrary(1.5, 4.0); // Velocidade base entre 1.5 e 3.0
@@ -324,10 +326,18 @@ function spawnAsteroid() {
     // Converte coordenadas polares (raio, ângulo) para cartesianas (x, y)
     const x = Math.cos(currentAngle) * radius;
     const y = Math.sin(currentAngle) * radius;
-    pointslist.push({ x, y });
+    pointslist.push({x, y});
   }
   
   asteroids.push(new Asteroid(x, y, pointslist, speed));
+}
+
+function spawnCapsula(){
+  const x = getRandomArbitrary(25, canvas.width - 25); // Posição X aleatória
+  const y = -40; // -40; // -40 Começa acima do canvas
+  const speed = 2; // Velocidade base entre 1.5 e 3.0
+  
+  capsulas.push(new Capsula(x, y, speed));
 }
 
 function closestPointOnSegment(p1, p2, p3) { // Encontra o ponto mais próximo no segmento de linha (p1-p2) ao ponto (p3).
@@ -374,7 +384,7 @@ function checkCollision(p, a) {
   return false; // Se nenhuma aresta colidiu, não há colisão.
 }
 
-function splitStringByLength(saying, maxLength) {
+function splitStringByLength(saying, maxLength){
   if (!saying.dizer) {
       return [];
   }
@@ -412,7 +422,13 @@ function splitStringByLength(saying, maxLength) {
 }
 
 function gameOver(){
-  
+  const maxLength = 40; // Núemro de caracteres por linha 
+  const sayingid = Math.round(getRandomArbitrary(0, sayings.length-2));
+  const lines = splitStringByLength(sayings[sayingid], maxLength); // Divide a string em linhas menores
+  const x = canvas.width * 0.5;
+  const y = canvas.height * 0.7;
+  const lineHeight = 42;
+  let currentY = 0;
   gameON = false; // Para a execução do jogo
   
   if (score > highScore) { // Verifica se tem um novo recorde.
@@ -441,14 +457,6 @@ function gameOver(){
   ctx.fillStyle = '#00FFFF';
   ctx.fillText(`REPLAY`, canvas.width * 0.5, canvas.height * 0.5);
   
-  const maxLength = 40; // Núemro de caracteres por linha 
-  const sayingid = Math.round(getRandomArbitrary(0, sayings.length-2));
-  const lines = splitStringByLength(sayings[sayingid], maxLength); // Divide a string em linhas menores
-  const x = canvas.width * 0.5;
-  const y = canvas.height * 0.7;
-  const lineHeight = 42;
-  let currentY = 0;
-  
   ctx.font = '40px sans-serif';
   ctx.textBaseline = 'bottom';
   
@@ -474,6 +482,11 @@ function formatTime(ms) { // Entra com o tempo em ms e a saída é o tempo em mm
 
 
 
+
+
+
+
+
 function gameLoop(timestamp) {
   if (!gameON) {
     return;
@@ -487,44 +500,75 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas a cada quadro
   
-  if (Math.floor(totalTimeElapsed / 500) > score / 10) {
-     dist += 7 + gameSpeed;
-     score += 10;
-  }
-
-  // Lógica de Spawn e Dificuldade
-  spawnCounter++;
-  if (spawnCounter >= asteroidSpawnRate) {
-    spawnAsteroid()
-    spawnCounter = 0;
-    
-    if (asteroidSpawnRate > 30) {
-        asteroidSpawnRate -= 1;
+  t100ms += deltaTime;
+  if(Math.floor(t100ms) > 100){ // Quando passa de 100ms
+    t100ms -= 100;
+    segundo++;
+    if(segundo == 10){ // Passou um segundo;
+      dist += 7 + gameSpeed;
+      segundo = 0;
+      switch(Math.floor(gameSpeed)){
+        case 7: 
+        case 6: spawnAsteroid();
+        case 5: 
+        case 4: spawnAsteroid();
+        case 3: 
+        case 2: spawnAsteroid();
+      }
     }
-    if (gameSpeed < 6.0) {
+    if (gameSpeed < 7.5) { // A cada 100ms atualiza a velocidade do jogo
         gameSpeed += 0.005;
     }
+    spawnCounter++; // Incrementa a cada 100ms o cantador do contador dos asteroides
+    if (spawnCounter >= asteroidSpawnRate) {
+      
+      spawnCounter = 0;
+      spawnCapsula(); // Adiciona uma cápsula por segundo
+      
+      if (asteroidSpawnRate > 20) { // Diminui o tempo e spawn dos asteroides
+          asteroidSpawnRate -= 1;
+      }
+    }
   }
-  
+
   player.update(); // Atualiza a posição do jogador
   player.draw(); // Desenha o jogador na tela
   
-  // Atualiza, desenha e checa colisões dos asteroides
-  for (let i = asteroids.length - 1; i >= 0; i--) {
+  for(let i = asteroids.length - 1; i >= 0; i--){ // Atualiza, desenha e checa colisões dos asteroides
     const asteroid = asteroids[i];
     asteroid.update();
     asteroid.draw();
 
-    // Colisão Triângulo-Círculo AQUI
-    if (checkCollision(player, asteroid)) {
+    if(checkCollision(player, asteroid)){ // Verifica se o asteroide colidiu com a nave
       gameOver();
       return;
     }
 
-  // Remove asteroides que saíram da tela e aumenta a pontuação
-    if (asteroid.y - 40 > canvas.height) {
+    if(asteroid.y - 40 > canvas.height){ // Remove asteroides que saíram da tela e aumenta a pontuação
+      score += 10;
       asteroids.splice(i, 1);
     }
+  }
+  
+  for(let i = capsulas.length - 1; i >= 0; i--){ // Atualiza, desenha e checa colisões das cápsulas
+    const capsula = capsulas[i];
+    capsula.update();
+    capsula.draw();
+
+    if(checkCollision(player, capsula)){ // Verifica se a cápsula colidiu com a nave
+      capsulas.splice(i, 1); // Apaga a cápsula
+      score += 40; // Aumenta os pontos
+    }
+
+    if(capsula.y - 40 > canvas.height){ // Remove cápsulas que saíram da tela e aumenta a pontuação
+      capsulas.splice(i, 1);
+    }
+  }
+  
+  if(score > 999999){
+    // Pontuação máxima
+    console.log('Pontuação máxima');
+    return;
   }
   
   updateUI(); // Atualiza o display do usuário
@@ -548,13 +592,16 @@ function init(){
   // Inicializa o jogador
   player = new Player(canvas.width * 0.5, canvas.height * 0.75, 30 * fator, 60 * fator, 10); // (x, y, width, height, speed)
   asteroids = []; // Cria um vetor vazio
+  capsulas = [];
   score = 0;
   spawnCounter = 0;
-  gameSpeed = 3;
+  gameSpeed = 2;
   gameON = true;
   dist = 0;
   totalTimeElapsed = 0;
   lastTime = 0;
+  t100ms = 0;
+  segundo = 0;
   
   setupTouchControls();
   updateUI();
@@ -582,6 +629,49 @@ function startScene() { // Função para iniciar a cena de texto
 startButton.addEventListener('click', () => {
   // Marca como visitado e inicia a cena
   localStorage.setItem('hasVisited', 'true');
-  iniciarMusica();
   startScene();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
